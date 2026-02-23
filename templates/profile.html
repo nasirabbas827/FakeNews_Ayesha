@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<style>
+    .profile-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        background: #ffffff;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #4b5563;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f3f4f7;
+        display: flex;
+        align-items: center;
+    }
+    .section-title i {
+        margin-right: 8px;
+        color: #3b82f6;
+    }
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #374151;
+    }
+    /* Specific button styling for Profile */
+    .btn-update {
+        background-color: #3b82f6;
+        border: none;
+        padding: 0.75rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: transform 0.1s, background-color 0.2s;
+    }
+    .btn-update:hover {
+        background-color: #2563eb;
+        transform: translateY(-1px);
+    }
+    .btn-update:active {
+        transform: translateY(0);
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card profile-card mx-auto" style="max-width: 550px;">
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Your Profile</h2>
+                <p class="text-muted small">Keep your account information up to date</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="section-title">
+                    <span>User Info</span>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ u_form.username.label }}</label>
+                    {{ u_form.username }}
+                    {% for error in u_form.username.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ u_form.email.label }}</label>
+                    {{ u_form.email }}
+                    {% for error in u_form.email.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="section-title">
+                    <span>Additional Info</span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">{{ p_form.phone.label }}</label>
+                    {{ p_form.phone }}
+                    {% for error in p_form.phone.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-update w-100">
+                    Update Profile
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

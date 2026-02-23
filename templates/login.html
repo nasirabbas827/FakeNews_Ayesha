@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom styling to supplement Bootstrap */
+    .login-container {
+        margin-top: 10vh;
+    }
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    .card-title {
+        font-weight: 700;
+        color: #333;
+    }
+    /* Targets Django's default widget outputs */
+    input[type="text"], 
+    input[type="password"], 
+    input[type="email"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        transition: border-color 0.2s;
+    }
+    input:focus {
+        outline: none;
+        border-color: #28a745; /* Matches btn-success */
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    .btn-success {
+        padding: 10px;
+        font-weight: 600;
+        border-radius: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>
+
+<div class="container login-container">
+    <div class="card mx-auto" style="max-width: 450px;">
+        <div class="card-body p-5">
+            <h2 class="card-title text-center mb-4">Login</h2>
+            
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {% for error in form.username.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label font-weight-bold">{{ form.password.label }}</label>
+                    {{ form.password }}
+                    {% for error in form.password.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Sign In</button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <span class="text-muted">Don't have an account?</span> 
+                <a href="{% url 'register' %}" class="text-success text-decoration-none fw-bold">Register here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

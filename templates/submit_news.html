@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit News{% endblock %}
+
+{% block content %}
+<style>
+    .analyze-card {
+        border: none;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    }
+    .analyze-header {
+        background: linear-gradient(135deg, #1f2937 0%, #3b82f6 100%);
+        padding: 40px;
+        border-radius: 20px 20px 0 0;
+        text-align: center;
+        color: white;
+    }
+    .analyze-header h2 {
+        color: white;
+        margin-bottom: 10px;
+        font-weight: 800;
+    }
+    .form-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #6b7280;
+    }
+    /* Special styling for the large text area */
+    textarea {
+        min-height: 200px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+    .btn-analyze {
+        background: #3b82f6;
+        border: none;
+        padding: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+    }
+    .btn-analyze:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.23);
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card analyze-card mx-auto" style="max-width: 700px;">
+        <div class="analyze-header">
+            <h2>Fake News AI</h2>
+            <p class="mb-0 opacity-75">Paste the article content below to check for authenticity.</p>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="mb-4">
+                        <label class="form-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="text-muted d-block mt-1">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn btn-primary btn-analyze">
+                        <span class="me-2">🔍</span> Run Deep Analysis
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <p class="text-muted small">
+            <i class="bi bi-info-circle me-1"></i> 
+            For best results, include at least two paragraphs of the news article.
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* Section Headers */
+    .dashboard-title {
+        font-weight: 800;
+        color: #1f2937;
+        letter-spacing: -0.025em;
+    }
+
+    /* Modern Card Styles */
+    .stat-card {
+        background: #ffffff;
+        border: none;
+        border-radius: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .icon-shape {
+        width: 48px;
+        height: 48px;
+        background: #f3f4f7;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Table & Chart Containers */
+    .glass-panel {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid #f3f4f7;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Custom Badges */
+    .badge-pill {
+        padding: 0.4em 0.8em;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="dashboard-title mb-1">Hello, {{ request.user.username }}!</h2>
+            <p class="text-muted">Here is what's happening with your news analyses today.</p>
+        </div>
+        <a href="{% url 'submit_news' %}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
+            Analyze New Article
+        </a>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="icon-shape text-primary">📊</div>
+                    <h6 class="text-muted small text-uppercase fw-bold">Total Checked</h6>
+                    <h2 class="fw-bold mb-0">{{ total_submissions }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="icon-shape text-danger">🚩</div>
+                    <h6 class="text-muted small text-uppercase fw-bold">Flagged Fake</h6>
+                    <h2 class="fw-bold mb-0 text-danger">{{ fake_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="icon-shape text-success">✅</div>
+                    <h6 class="text-muted small text-uppercase fw-bold">Verified Real</h6>
+                    <h2 class="fw-bold mb-0 text-success">{{ real_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="icon-shape text-info">🎯</div>
+                    <h6 class="text-muted small text-uppercase fw-bold">Avg. Accuracy</h6>
+                    <h2 class="fw-bold mb-0 text-info">{{ avg_confidence|floatformat:1 }}%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 mb-4">
+            <div class="glass-panel h-100">
+                <h5 class="fw-bold mb-4">Analysis Trends</h5>
+                <canvas id="newsChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <div class="col-lg-5 mb-4">
+            <div class="glass-panel h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Recent Activity</h5>
+                    <a href="{% url 'history' %}" class="small text-decoration-none">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle">
+                        <tbody class="small">
+                            {% for submission in recent_submissions %}
+                            <tr class="border-bottom">
+                                <td class="py-3">
+                                    <span class="d-block fw-bold text-dark">{{ submission.title|truncatechars:35 }}</span>
+                                    <span class="text-muted smaller">{{ submission.submitted_at|date:"M d, Y" }}</span>
+                                </td>
+                                <td class="text-end">
+                                    {% if submission.is_fake %}
+                                        <span class="badge badge-pill bg-danger-subtle text-danger">Fake</span>
+                                    {% else %}
+                                        <span class="badge badge-pill bg-success-subtle text-success">Real</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center py-4 text-muted">No recent activity found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('newsChart').getContext('2d');
+// Fallback for empty data
+const chartData = {{ chart_data|safe|default:"{'labels': [], 'fake_counts': [], 'real_counts': []}" }};
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: chartData.labels,
+        datasets: [
+            {
+                label: 'Fake',
+                data: chartData.fake_counts,
+                backgroundColor: '#ef4444',
+                borderRadius: 8,
+            },
+            {
+                label: 'Real',
+                data: chartData.real_counts,
+                backgroundColor: '#10b981',
+                borderRadius: 8,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+        },
+        scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, border: { dash: [4, 4] } }
+        }
+    }
+});
+</script>
+{% endblock %}

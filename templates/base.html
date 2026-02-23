@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fake News Detection{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Body and layout */
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #f3f4f7;
+            color: #2d3436;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Keeps footer at bottom */
+        }
+
+        /* Typography */
+        h2, h3, h4 {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background-color: #1f2937 !important; /* Deep charcoal */
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff !important;
+        }
+        .nav-link {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: color 0.2s ease;
+        }
+        .nav-link:hover {
+            color: #3b82f6 !important; /* Modern blue accent */
+        }
+
+        /* Container & Content Area */
+        .main-content {
+            flex: 1; /* Pushes footer down */
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+
+        /* Universal Form Styles (Applied to Login/Register) */
+        input[type="text"], 
+        input[type="password"], 
+        input[type="email"], 
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Global Table Styling */
+        .table {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .table thead th {
+            background-color: #f9fafb;
+            color: #4b5563;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom-width: 1px;
+        }
+
+        /* Global Footer */
+        footer {
+            background-color: #1f2937;
+            color: #9ca3af;
+            padding: 1.5rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 1px solid #374151;
+        }
+
+        /* Hide Django Help Text */
+        .helptext {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'submit_news' %}">
+                <span style="color: #3b82f6;">Fake</span>NewsAI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'submit_news' %}">Submit News</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'history' %}">History</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger-emphasis" href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-primary text-white px-3 ms-lg-2" href="{% url 'register' %}" style="border-radius: 6px;">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-dismissible fade show {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="border-radius: 10px;">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            &copy; 2026 FakeNewsAI. Built with precision.
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
